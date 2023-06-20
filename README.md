@@ -51,16 +51,7 @@ This will not serve as an appropriate mathematical introduction to either Newton
  ```math
  \phi''  = - \frac{2 r' \phi'}{r} .
  ```
- Using the chain rule and [normalisation of the 4-velocity](https://en.wikipedia.org/wiki/Four-velocity) (where we note again that $c=1$ for us), we obtain 
- ```math
- (t')^2 = \left[ \left( 1 - \frac{2M}{r} \right) - \left( 1 - \frac{2M}{r} \right)^{-1} \dot r^2 - r^2 \dot\phi^2 \right]^{-1} . 
- ```
- We shall leave this as is for the sake of brevity below. 
- Then the above equations become (with care taken for the conversion $x'' \to \ddot{x}$)
- <!-- THIS IS AN INTERMEDIATE RESULT -->
- <!-- ```math
- t'' = - \frac{2M}{ r (r - 2M) } \dot{r} (t')^2 ,
- ```  --> 
+ Using the chain rule, the above equations become (with care taken for the conversion $x'' \to \ddot{x}$)
  ```math
  \ddot{r} = - \frac{M (r-2M)}{r^3} + \frac{3 M}{r (r - 2M)} \dot{r}^2 + (r-2M) \dot{\phi}^2 ,
  ```
