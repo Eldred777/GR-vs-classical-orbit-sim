@@ -11,6 +11,8 @@ This will not serve as an appropriate mathematical introduction to either Newton
  Throughout we assume $c=G=1$ for convenience, and that we are on the plane so that the polar angle is given by $\theta=\pi/2$. 
  Further, we denote derivatives with respect to (coordinate) time as dots, $\dot{x}$. 
 
+ **Important note: as written, this project simulates the path of the object with respect to coordinate time, as opposed to proper time. It also currently fails to account for the coordinate singularity of the Schwarzschild metric at the event horizon.**
+
  ## Newtonian equations of motion
  Recall we have the usual $F= ma = m \ddot{r}$ so with the law of gravitation
  ```math
@@ -54,12 +56,13 @@ This will not serve as an appropriate mathematical introduction to either Newton
  ```math
  (t')^2 = \left[ \left( 1 - \frac{2M}{r} \right) - \left( 1 - \frac{2M}{r} \right)^{-1} \dot r^2 - r^2 \dot\phi^2 \right]^{-1} . 
  ```
+ Note that this will cancel out as it is an intermediate result. 
  Then the above equations become 
  ```math
  \ddot{r} = - \frac{M (r-2M)}{r^3} + \frac{M}{r (r - 2M)} \dot{r}^2 + (r-2M) \dot{\phi}^2 ,
  ```
  ```math
- \ddot{\phi} = - 2 r^{-1} \dot{r} \dot{\phi} .
+ \ddot{\phi} = - \frac{2 \dot{r} \dot{\phi}}{r} .
  ```
 
  ## Computational techniques 
