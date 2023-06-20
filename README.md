@@ -56,13 +56,17 @@ This will not serve as an appropriate mathematical introduction to either Newton
  ```math
  (t')^2 = \left[ \left( 1 - \frac{2M}{r} \right) - \left( 1 - \frac{2M}{r} \right)^{-1} \dot r^2 - r^2 \dot\phi^2 \right]^{-1} . 
  ```
- Note that this will cancel out as it is an intermediate result. 
- Then the above equations become 
+ We shall leave this as is for the sake of brevity below. 
+ Then the above equations become (with care taken for the conversion $x'' \to \ddot{x}$)
+ <!-- THIS IS AN INTERMEDIATE RESULT -->
+ <!-- ```math
+ t'' = - \frac{2M}{ r (r - 2M) } \dot{r} (t')^2 ,
+ ```  --> 
  ```math
- \ddot{r} = - \frac{M (r-2M)}{r^3} + \frac{M}{r (r - 2M)} \dot{r}^2 + (r-2M) \dot{\phi}^2 ,
+ \ddot{r} = - \frac{M (r-2M)}{r^3} + \frac{3 M}{r (r - 2M)} \dot{r}^2 + (r-2M) \dot{\phi}^2 ,
  ```
  ```math
- \ddot{\phi} = - \frac{2 \dot{r} \dot{\phi}}{r} .
+ \ddot{\phi} = \frac{2M}{r (r-2M)} \dot{r} \dot{\phi} - \frac{2 \dot{r} \dot{\phi}}{r} .
  ```
 
  ## Computational techniques 
