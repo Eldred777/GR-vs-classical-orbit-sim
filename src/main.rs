@@ -8,6 +8,10 @@ fn main() {
     let window_size_y = 2 * window_size_y_half;
 
     // SIMULATION SETTINGS
+    let M = 1;
+    let d1 = 0.1;
+    let time_factor = 10;
+
     // TODO: initial conditions
     // TODO: accept user input for initial conditions?
 
@@ -41,7 +45,8 @@ fn main() {
         );
 
         // TODO: simulation
-        // TODO: possibly multithread the computations? Unsure if much benefit since we really want to sync up the frame drawing to some rescaling of time. 
+        // TODO: circular-queue to prevent too much data being stored/drawn at once? Can probably have a generous limit on the buffer.
+        // TODO: possibly multithread the computations? Unsure if much benefit since we really want to sync up the frame drawing to some rescaling of time.
 
         // TODO: draw on it
     }
