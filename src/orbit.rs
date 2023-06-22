@@ -67,6 +67,7 @@ mod Orbit {
 
         OrbitState(0, 0, 0, 0) // TODO: implement
     }
+    // TODO: Annotate like f: &dyn Fn(i32) -> i32
 
     fn RK4(&state: OrbitState, &update: OrbitUpdate, M: f64, dt: f64, f: T) -> OrbitState
     where
