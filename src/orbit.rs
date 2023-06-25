@@ -24,6 +24,32 @@ impl OrbitState {
     fn get_entries(&self) -> (f64, f64, f64, f64) {
         (self.r, self.phi, self.v_r, self.v_phi)
     }
+
+    // TODO: fn convert to cartesian coordinates
+
+    fn update(&self, update: &OrbitUpdate) -> OrbitState {
+        let (r, phi, v_r, v_phi) = self.get_entries();
+        let (delta_r, delta_phi, delta_v_r, delta_v_phi) = update.get_entries();
+
+        OrbitState::construct(
+            r + delta_r,
+            phi + delta_phi,
+            v_r + delta_v_r,
+            v_phi + delta_v_phi,
+        )
+    }
+
+    fn update_scaled(&self, update: &OrbitUpdate, scalar: f64) -> OrbitState {
+        let (r, phi, v_r, v_phi) = self.get_entries();
+        let (delta_r, delta_phi, delta_v_r, delta_v_phi) = update.get_entries();
+
+        OrbitState::construct(
+            r + scalar * delta_r,
+            phi + scalar * delta_phi,
+            v_r + scalar * delta_v_r,
+            v_phi + scalar * delta_v_phi,
+        )
+    }
 }
 
 impl OrbitUpdate {
@@ -85,17 +111,7 @@ fn step_euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
-    let (r, phi, v_r, v_phi) = state.get_entries();
-    let (delta_r, delta_phi, delta_v_r, delta_v_phi) = f(state, M).get_entries();
-
-    let r = r + delta_r * dt;
-    let phi = phi + delta_phi * dt;
-    let v_r = v_r + delta_v_r * dt;
-    let v_phi = v_phi + delta_v_phi * dt;
-
-    // TODO: there has to be a better way to do this.
-
-    OrbitState::construct(r, phi, v_r, v_phi)
+    state.update_scaled(&f(state, M), dt)
 }
 
 fn step_rk4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
