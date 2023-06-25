@@ -1,5 +1,7 @@
 use raylib::prelude::*;
 
+mod orbit;
+
 fn main() {
     // WINDOW SETTINGS
     let window_size_x_half = 320;
@@ -8,11 +10,16 @@ fn main() {
     let window_size_y = 2 * window_size_y_half;
 
     // SIMULATION SETTINGS
-    let M = 1;
+    let M = 1.;
     let d1 = 0.1;
-    let time_factor = 10;
+    let time_factor = 10.;
 
     // TODO: initial conditions
+    let r0 = 1.;
+    let phi0 = 0.;
+    let dr0 = 0.;
+    let dphi0 = 1.;
+
     // TODO: accept user input for initial conditions?
 
     let (mut rl, thread) = raylib::init()
