@@ -118,9 +118,18 @@ fn step_rk4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
+    let dt_2 = dt / 2.;
+    let dt_3 = dt / 3.;
+    let dt_6 = dt / 6.;
+
     let update_1 = f(state, M);
+    let update_2 = f(&state.update(&update_1), dt_2);
+    let update_3 = f(&state.update(&update_2), dt_2);
+    let update_4 = f(&state.update(&update_3), dt);
 
-    // TODO: RK4 steps
-
-    OrbitState::construct(0., 0., 0., 0.) // TODO: implement
+    state
+        .update_scaled(&update_1, dt_6)
+        .update_scaled(&update_2, dt_3)
+        .update_scaled(&update_3, dt_3)
+        .update_scaled(&update_4, dt_6)
 }
