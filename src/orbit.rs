@@ -10,10 +10,10 @@ struct OrbitState {
 
 // Keeping the updates separate for logic reasons.
 struct OrbitUpdate {
-    dr: f64,
-    dphi: f64,
-    dv_r: f64,
-    dv_phi: f64,
+    delta_r: f64,
+    delta_phi: f64,
+    delta_v_r: f64,
+    delta_v_phi: f64,
 }
 
 impl OrbitState {
@@ -27,17 +27,22 @@ impl OrbitState {
 }
 
 impl OrbitUpdate {
-    fn construct(dr: f64, dphi: f64, dv_r: f64, dv_phi: f64) -> OrbitUpdate {
+    fn construct(delta_r: f64, delta_phi: f64, delta_v_r: f64, delta_v_phi: f64) -> OrbitUpdate {
         OrbitUpdate {
-            dr,
-            dphi,
-            dv_r,
-            dv_phi,
+            delta_r,
+            delta_phi,
+            delta_v_r,
+            delta_v_phi,
         }
     }
 
     fn get_entries(&self) -> (f64, f64, f64, f64) {
-        (self.dr, self.dphi, self.dv_r, self.dv_phi)
+        (
+            self.delta_r,
+            self.delta_phi,
+            self.delta_v_r,
+            self.delta_v_phi,
+        )
     }
 }
 
@@ -71,20 +76,26 @@ fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
     let twoM = 2. * M; // 2M
     let rmtM = r - 2. * M; // r - 2M
 
-    let dv_r = -M * rmtM / cube(r) + 3. * M / (r * rmtM) * square(v_r) + rmtM * square(v_phi);
-    let dv_phi = twoM / (r * rmtM) * v_r * v_phi - 2. * v_r * v_phi / r;
-    OrbitUpdate::construct(v_r, v_phi, dv_r, dv_phi)
+    let delta_v_r = -M * rmtM / cube(r) + 3. * M / (r * rmtM) * square(v_r) + rmtM * square(v_phi);
+    let delta_v_phi = twoM / (r * rmtM) * v_r * v_phi - 2. * v_r * v_phi / r;
+    OrbitUpdate::construct(v_r, v_phi, delta_v_r, delta_v_phi)
 }
 
 fn step_euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
-    let update = f(state, M);
+    let (r, phi, v_r, v_phi) = state.get_entries();
+    let (delta_r, delta_phi, delta_v_r, delta_v_phi) = f(state, M).get_entries();
 
-    // TODO: x = x0 + x' * dt
+    let r = r + delta_r * dt;
+    let phi = phi + delta_phi * dt;
+    let v_r = v_r + delta_v_r * dt;
+    let v_phi = v_phi + delta_v_phi * dt;
 
-    OrbitState::construct(0., 0., 0., 0.) // TODO: implement
+    // TODO: there has to be a better way to do this.
+
+    OrbitState::construct(r, phi, v_r, v_phi)
 }
 
 fn step_rk4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
