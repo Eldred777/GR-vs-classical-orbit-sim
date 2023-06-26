@@ -7,6 +7,7 @@ use std::time::Duration;
 pub mod orbit;
 
 // TODO: terminate simulation when blow-up or singularity happens
+// TODO: history tracking slows down program significantly.
 
 fn convert_float_coordinates_to_pixel_coordinates(
     x: f64,
@@ -157,7 +158,6 @@ fn main() {
         // TODO: is this following line needed? better way to do? Will it work to set fps and let raylib take care of it?
         std::thread::sleep(Duration::from_secs_f64(graphic_dt));
 
-        // TODO: simulation
         // TODO: possibly multithread the computations? Unsure if much benefit since we really want to sync up the frame drawing to some rescaling of time.
     }
 }
