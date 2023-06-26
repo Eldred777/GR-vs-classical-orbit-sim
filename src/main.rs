@@ -1,3 +1,5 @@
+#![allow(dead_code)] // TODO: REMOVE WHEN WORKING PROTOTYPE
+
 use raylib::prelude::*;
 
 mod orbit;

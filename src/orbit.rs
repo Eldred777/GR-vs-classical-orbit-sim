@@ -86,6 +86,7 @@ where
     x * x * x
 }
 
+#[allow(non_snake_case)]
 fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
     let (r, _phi, v_r, v_phi) = state.get_entries();
     OrbitUpdate::construct(
@@ -96,6 +97,7 @@ fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
     )
 }
 
+#[allow(non_snake_case)]
 fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
     let (r, _phi, v_r, v_phi) = state.get_entries();
 
@@ -107,14 +109,16 @@ fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
     OrbitUpdate::construct(v_r, v_phi, delta_v_r, delta_v_phi)
 }
 
-fn step_euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
+#[allow(non_snake_case)]
+fn step_Euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
     state.update_scaled(&f(state, M), dt)
 }
 
-fn step_rk4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
+#[allow(non_snake_case)]
+fn step_RK4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
@@ -123,9 +127,9 @@ where
     let dt_6 = dt / 6.;
 
     let update_1 = f(state, M);
-    let update_2 = f(&state.update(&update_1), dt_2);
-    let update_3 = f(&state.update(&update_2), dt_2);
-    let update_4 = f(&state.update(&update_3), dt);
+    let update_2 = f(&state.update_scaled(&update_1, dt_2), M);
+    let update_3 = f(&state.update_scaled(&update_2, dt_2), M);
+    let update_4 = f(&state.update_scaled(&update_3, dt), M);
 
     state
         .update_scaled(&update_1, dt_6)
