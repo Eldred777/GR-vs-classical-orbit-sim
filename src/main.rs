@@ -105,6 +105,11 @@ fn main() {
             simulation_dt,
             &orbit::ode_Schwarzschild,
         );
+
+        // TODO: pause the simulation if the Schwarzschild radius is hit (coordinate singularity)
+        // TODO: pause the simulation if either radius gets too large
+
+        let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
         let (x_Schwarzschild, y_Schwarzschild, _, _) = orbit_state_Schwarzschild.to_Cartesian();
         // buffer_Newton.push(convert_float_coordinates_to_pixel_coordinates(
         //     x,
