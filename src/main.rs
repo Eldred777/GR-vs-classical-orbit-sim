@@ -6,7 +6,7 @@ use std::time::Duration;
 
 pub mod orbit;
 
-// TODO: terminate simulation when blow-up happens
+// TODO: terminate simulation when blow-up or singularity happens
 
 fn convert_float_coordinates_to_pixel_coordinates(
     x: f64,
@@ -25,8 +25,7 @@ fn convert_float_coordinates_to_pixel_coordinates(
     return (x, y);
 }
 
-#[allow(non_snake_case)]
-#[allow(unused_variables)] // TODO: remove when working prototype
+#[allow(non_snake_case)] // for variables
 fn main() {
     // WINDOW SETTINGS
     let window_size_x_half = 320;

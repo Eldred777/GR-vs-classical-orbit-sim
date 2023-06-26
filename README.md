@@ -1,5 +1,13 @@
 # Overview
- A quick little comparison of Newtonian and general relativistic Schwarzschild orbits. The purpose of this project is just to do a little something in Rust to get familiar with some of the basics. This also happens to be my first time using a proper GUI library; at the suggestion of [villuna](https://github.com/villuna), I will attempt to use [raylib-rs](https://github.com/deltaphc/raylib-rs). 
+ A quick little comparison of Newtonian and general relativistic Schwarzschild orbits. The purpose of this project is just to do a little something in Rust to get familiar with some of the basics. This also happens to be my first time using a proper GUI library; at the suggestion of [villuna](https://github.com/villuna), I have used [raylib-rs](https://github.com/deltaphc/raylib-rs). 
+
+ At this stage, the initial goals of this little project have been largely met.
+ A couple notes:
+ - Numerical instability, I believe, causes the orbits to all fall toward the central mass. 
+ - The Schwarzschild orbit appears not to quite behave like I would expect, namely in that it diverges significantly from the Newtonian orbit. I am unsure at present whether that's due to the parameters I have chosen, or due to a miscomputation in my theory below. 
+ - I have left numerous TODO notes in the code, which are essentially notes to myself of areas where I could improve, or indeed further ideas for extensions to this project whenever I feel like coming back to it. 
+
+ Finally, I am more than open to suggestions on how I can improve this. I have flagged a couple areas where I'm sure I could improve the structure of my code, and reduce redundant computations. 
 
 # Background theory 
 This will not serve as an appropriate mathematical introduction to either Newtonian orbital mechanics nor general relativity. As a refresher, please refer to Wikipedia: 
