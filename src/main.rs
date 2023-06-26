@@ -18,6 +18,7 @@ fn convert_float_coordinates_to_pixel_coordinates(
     let x = x * graphic_scale;
     let y = y * graphic_scale;
 
+    // FIXME: this cast here will panic when overflow occurs
     let x = num::clamp(x.floor() as i32 + screen_width / 2, 0, screen_width);
     let y = num::clamp(-y.floor() as i32 + screen_height / 2, 0, screen_height);
 
@@ -34,21 +35,21 @@ fn main() {
     let window_size_y = 2 * window_size_y_half;
 
     // SIMULATION SETTINGS
-    let M = 1.; // central mass
+    let M: f64 = 1.; // central mass
     let simulation_dt = 0.1; // simulation time step for ODE solvers
     let time_factor = 100.; // Think of this as a rate; # of updates to be shown in one unit of time.
-    let graphic_dt = simulation_dt / time_factor; //
-    let graphic_scale = 10.;
+    let graphic_dt = simulation_dt / time_factor; // TODO: doc
+    let graphic_scale = 10.; // TODO: doc
 
     // TODO: initial conditions
     let r0 = 10.;
     let phi0 = 0. * PI;
-    let v_r0 = 0.;
+    let v_r0 = 0.1;
     let v_phi0 = 0.01 * PI;
 
     // TODO: we aim to get the newton simulation working first and then add the Schwarzschild simulation in later.
     let mut orbit_state_Newton = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
-    // let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
+    let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
 
     // const BUFFER_SIZE: usize = 1000;
     // let mut buffer_Newton: CircularQueue<(i32, i32)> =
@@ -69,7 +70,14 @@ fn main() {
         d.clear_background(Color::WHITE);
 
         // Draw center and axes
-        d.draw_circle(window_size_x_half, window_size_y_half, 10.0, Color::BLACK);
+        let Schwarzschild_radius: f32 = (2. * M * graphic_scale) as f32;
+        // HACK: this may panic if `M` is large
+        d.draw_circle(
+            window_size_x_half,
+            window_size_y_half,
+            Schwarzschild_radius,
+            Color::BLACK,
+        );
         // x-axis
         d.draw_line(
             0,
@@ -90,7 +98,14 @@ fn main() {
         // Evolution of system
         orbit_state_Newton =
             orbit::step_Euler(&orbit_state_Newton, M, simulation_dt, &orbit::ode_Newtonian);
-        let (x, y, _, _) = orbit_state_Newton.to_Cartesian();
+        let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
+        orbit_state_Schwarzschild = orbit::step_Euler(
+            &orbit_state_Schwarzschild,
+            M,
+            simulation_dt,
+            &orbit::ode_Schwarzschild,
+        );
+        let (x_Schwarzschild, y_Schwarzschild, _, _) = orbit_state_Schwarzschild.to_Cartesian();
         // buffer_Newton.push(convert_float_coordinates_to_pixel_coordinates(
         //     x,
         //     y,
@@ -99,15 +114,23 @@ fn main() {
         // ));
 
         // Draw the orbits
-        // let (x, y, _, _) = orbit_state_Newton.to_Cartesian();
-        let (x, y) = convert_float_coordinates_to_pixel_coordinates(
-            x,
-            y,
+        let (x_Newton, y_Newton) = convert_float_coordinates_to_pixel_coordinates(
+            x_Newton,
+            y_Newton,
             window_size_x,
             window_size_y,
             graphic_scale,
         );
-        d.draw_circle(x, y, 10., Color::RED);
+        d.draw_circle(x_Newton, y_Newton, 10., Color::RED);
+
+        let (x_Schwarzschild, y_Schwarzschild) = convert_float_coordinates_to_pixel_coordinates(
+            x_Schwarzschild,
+            y_Schwarzschild,
+            window_size_x,
+            window_size_y,
+            graphic_scale,
+        );
+        d.draw_circle(x_Schwarzschild, y_Schwarzschild, 10., Color::BLUE);
 
         // TODO: draw history of orbits with circular buffer
 
