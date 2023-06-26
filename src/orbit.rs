@@ -9,6 +9,7 @@ struct OrbitState {
 }
 
 // Keeping the updates separate for logic reasons.
+// ? is it necessary to split this out? Might it be better to split this into data types instead of structs?
 struct OrbitUpdate {
     delta_r: f64,
     delta_phi: f64,
