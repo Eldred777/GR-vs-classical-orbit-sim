@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 use num::Float;
 
 // ? I wonder if there's a way to generalise this so I extend this code to general ODE systems.
@@ -26,7 +28,6 @@ impl OrbitState {
         (self.r, self.phi, self.v_r, self.v_phi)
     }
 
-    #[allow(non_snake_case)]
     pub fn to_Cartesian(&self) -> (f64, f64, f64, f64) {
         let (r, phi, v_r, v_phi) = self.get_entries();
 
@@ -97,7 +98,6 @@ where
     x * x * x
 }
 
-#[allow(non_snake_case)]
 pub fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
     let (r, _phi, v_r, v_phi) = state.get_entries();
     OrbitUpdate::construct(
@@ -108,7 +108,6 @@ pub fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
     )
 }
 
-#[allow(non_snake_case)]
 pub fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
     let (r, _phi, v_r, v_phi) = state.get_entries();
 
@@ -120,7 +119,6 @@ pub fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
     OrbitUpdate::construct(v_r, v_phi, delta_v_r, delta_v_phi)
 }
 
-#[allow(non_snake_case)]
 pub fn step_Euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
@@ -128,7 +126,6 @@ where
     state.update_scaled(&f(state, M), dt)
 }
 
-#[allow(non_snake_case)]
 pub fn step_RK4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
