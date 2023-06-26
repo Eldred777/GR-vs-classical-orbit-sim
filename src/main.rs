@@ -1,9 +1,26 @@
 #![allow(dead_code)] // TODO: REMOVE WHEN WORKING PROTOTYPE
 
+use circular_queue::{self, CircularQueue};
+use num;
 use raylib::prelude::*;
+use std::time::Duration;
 
-mod orbit;
+pub mod orbit;
 
+fn convert_float_coordinates_to_pixel_coordinates(
+    x: f64,
+    y: f64,
+    screen_width: i32,
+    screen_height: i32,
+) -> (i32, i32) {
+    let x = num::clamp(x.floor() as i32 + screen_width / 2, 0, screen_width);
+    let y = num::clamp(-y.floor() as i32 + screen_height / 2, 0, screen_height);
+
+    return (x, y);
+}
+
+#[allow(non_snake_case)]
+#[allow(unused_variables)] // TODO: remove when working prototype
 fn main() {
     // WINDOW SETTINGS
     let window_size_x_half = 320;
@@ -12,15 +29,26 @@ fn main() {
     let window_size_y = 2 * window_size_y_half;
 
     // SIMULATION SETTINGS
-    let M = 1.;
-    let d1 = 0.1;
-    let time_factor = 10.;
+    let M = 1.; // central mass
+    let simulation_dt = 0.1; // simulation time step for ODE solvers
+    let time_factor = 100.; // Think of this as a rate; # of updates to be shown in one unit of time.
+    let graphic_dt = simulation_dt / time_factor; //
 
     // TODO: initial conditions
-    let r0 = 1.;
-    let phi0 = 0.;
-    let dr0 = 0.;
-    let dphi0 = 1.;
+    let r0 = 20.;
+    let phi0 = 1.;
+    let v_r0 = 0.;
+    let v_phi0 = 0.;
+
+    // TODO: we aim to get the newton simulation working first and then add the Schwarzschild simulation in later.
+    let mut orbit_state_Newton = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
+    // let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
+
+    const BUFFER_SIZE: usize = 1000;
+    let mut buffer_Newton: CircularQueue<(i32, i32)> =
+        circular_queue::CircularQueue::with_capacity(BUFFER_SIZE);
+    // let buffer_Schwarzschild: CircularQueue<(i32, i32)> =
+    // circular_queue::CircularQueue::with_capacity(1000);
 
     // TODO: accept user input for initial conditions?
 
@@ -53,10 +81,29 @@ fn main() {
             Color::BLACK,
         );
 
-        // TODO: simulation
-        // TODO: circular-queue to prevent too much data being stored/drawn at once? Can probably have a generous limit on the buffer.
-        // TODO: possibly multithread the computations? Unsure if much benefit since we really want to sync up the frame drawing to some rescaling of time.
+        // Evolution of system
+        orbit_state_Newton =
+            orbit::step_Euler(&orbit_state_Newton, M, simulation_dt, &orbit::ode_Newtonian);
+        let (x, y, _, _) = orbit_state_Newton.to_Cartesian();
+        // buffer_Newton.push(convert_float_coordinates_to_pixel_coordinates(
+        //     x,
+        //     y,
+        //     window_size_x,
+        //     window_size_y,
+        // ));
 
-        // TODO: draw on it
+        // Draw the orbits
+        // let (x, y, _, _) = orbit_state_Newton.to_Cartesian();
+        let (x, y) =
+            convert_float_coordinates_to_pixel_coordinates(x, y, window_size_x, window_size_y);
+        d.draw_circle(x, y, 10., Color::RED);
+
+        // TODO: draw history of orbits with circular buffer
+
+        // TODO: is this following line needed? better way to do? Will it work to set fps and let raylib take care of it?
+        std::thread::sleep(Duration::from_secs_f64(graphic_dt));
+
+        // TODO: simulation
+        // TODO: possibly multithread the computations? Unsure if much benefit since we really want to sync up the frame drawing to some rescaling of time.
     }
 }

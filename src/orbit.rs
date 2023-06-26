@@ -1,7 +1,7 @@
 use num::Float;
 
 // ? I wonder if there's a way to generalise this so I extend this code to general ODE systems.
-struct OrbitState {
+pub struct OrbitState {
     r: f64,
     phi: f64,
     v_r: f64,
@@ -10,7 +10,7 @@ struct OrbitState {
 
 // Keeping the updates separate for logic reasons.
 // ? is it necessary to split this out? Might it be better to split this into data types instead of structs?
-struct OrbitUpdate {
+pub struct OrbitUpdate {
     delta_r: f64,
     delta_phi: f64,
     delta_v_r: f64,
@@ -18,7 +18,7 @@ struct OrbitUpdate {
 }
 
 impl OrbitState {
-    fn construct(r: f64, phi: f64, v_r: f64, v_phi: f64) -> OrbitState {
+    pub fn construct(r: f64, phi: f64, v_r: f64, v_phi: f64) -> OrbitState {
         OrbitState { r, phi, v_r, v_phi }
     }
 
@@ -26,7 +26,17 @@ impl OrbitState {
         (self.r, self.phi, self.v_r, self.v_phi)
     }
 
-    // TODO: fn convert to cartesian coordinates
+    #[allow(non_snake_case)]
+    pub fn to_Cartesian(&self) -> (f64, f64, f64, f64) {
+        let (r, phi, v_r, v_phi) = self.get_entries();
+
+        let x = r * phi.cos();
+        let y = r * phi.sin();
+        let v_x = v_r * phi.cos() - r * v_phi * phi.sin();
+        let v_y = v_r * phi.sin() + r * v_phi * phi.cos();
+
+        return (x, y, v_x, v_y);
+    }
 
     fn update(&self, update: &OrbitUpdate) -> OrbitState {
         let (r, phi, v_r, v_phi) = self.get_entries();
@@ -88,7 +98,7 @@ where
 }
 
 #[allow(non_snake_case)]
-fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
+pub fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
     let (r, _phi, v_r, v_phi) = state.get_entries();
     OrbitUpdate::construct(
         v_r,
@@ -99,7 +109,7 @@ fn ode_Newtonian(state: &OrbitState, M: f64) -> OrbitUpdate {
 }
 
 #[allow(non_snake_case)]
-fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
+pub fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
     let (r, _phi, v_r, v_phi) = state.get_entries();
 
     let twoM = 2. * M; // 2M
@@ -111,7 +121,7 @@ fn ode_Schwarzschild(state: &OrbitState, M: f64) -> OrbitUpdate {
 }
 
 #[allow(non_snake_case)]
-fn step_Euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
+pub fn step_Euler<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
@@ -119,7 +129,7 @@ where
 }
 
 #[allow(non_snake_case)]
-fn step_RK4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
+pub fn step_RK4<T>(state: &OrbitState, M: f64, dt: f64, f: T) -> OrbitState
 where
     T: Fn(&OrbitState, f64) -> OrbitUpdate,
 {
