@@ -36,28 +36,27 @@ fn main() {
 
     // SIMULATION SETTINGS
     let M: f64 = 1.; // central mass
-    let simulation_dt = 0.1; // simulation time step for ODE solvers
+    let simulation_dt = 0.25; // simulation time step for ODE solvers
     let time_factor = 100.; // Think of this as a rate; # of updates to be shown in one unit of time.
     let graphic_dt = simulation_dt / time_factor; // TODO: doc
-    let graphic_scale = 10.; // TODO: doc
+    let graphic_scale = 5.; // TODO: doc
 
     // TODO: initial conditions
     let r0 = 10.;
     let phi0 = 0. * PI;
     let v_r0 = 0.1;
-    let v_phi0 = 0.01 * PI;
+    let v_phi0 = 0.0101 * PI;
 
     let mut simulation_time = 0.; // keep track of total time simulated
 
-    // TODO: we aim to get the newton simulation working first and then add the Schwarzschild simulation in later.
     let mut orbit_state_Newton = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
     let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
 
-    // const BUFFER_SIZE: usize = 1000;
-    // let mut buffer_Newton: CircularQueue<(i32, i32)> =
-    //     circular_queue::CircularQueue::with_capacity(BUFFER_SIZE);
-    // let buffer_Schwarzschild: CircularQueue<(i32, i32)> =
-    //     circular_queue::CircularQueue::with_capacity(1000);
+    const BUFFER_SIZE: usize = 10000;
+    let mut history_Newton: CircularQueue<(i32, i32)> =
+        circular_queue::CircularQueue::with_capacity(BUFFER_SIZE);
+    let mut history_Schwarzschild: CircularQueue<(i32, i32)> =
+        circular_queue::CircularQueue::with_capacity(1000);
 
     // TODO: accept user input for initial conditions?
 
@@ -108,7 +107,6 @@ fn main() {
         simulation_time += simulation_dt;
 
         // Evolution of system
-
         orbit_state_Newton =
             orbit::step_Euler(&orbit_state_Newton, M, simulation_dt, &orbit::ode_Newtonian);
         let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
@@ -124,33 +122,38 @@ fn main() {
 
         let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
         let (x_Schwarzschild, y_Schwarzschild, _, _) = orbit_state_Schwarzschild.to_Cartesian();
-        // buffer_Newton.push(convert_float_coordinates_to_pixel_coordinates(
-        //     x,
-        //     y,
-        //     window_size_x,
-        //     window_size_y,
-        // ));
 
-        // Draw the orbits
-        let (x_Newton, y_Newton) = convert_float_coordinates_to_pixel_coordinates(
+        // Draw the orbit current positions
+        let (x_Newton_pix, y_Newton_pix) = convert_float_coordinates_to_pixel_coordinates(
             x_Newton,
             y_Newton,
             window_size_x,
             window_size_y,
             graphic_scale,
         );
-        d.draw_circle(x_Newton, y_Newton, 10., Color::RED);
+        let (x_Schwarzschild_pix, y_Schwarzschild_pix) =
+            convert_float_coordinates_to_pixel_coordinates(
+                x_Schwarzschild,
+                y_Schwarzschild,
+                window_size_x,
+                window_size_y,
+                graphic_scale,
+            );
 
-        let (x_Schwarzschild, y_Schwarzschild) = convert_float_coordinates_to_pixel_coordinates(
-            x_Schwarzschild,
-            y_Schwarzschild,
-            window_size_x,
-            window_size_y,
-            graphic_scale,
-        );
-        d.draw_circle(x_Schwarzschild, y_Schwarzschild, 10., Color::BLUE);
+        d.draw_circle(x_Newton_pix, y_Newton_pix, 10., Color::RED);
+        d.draw_circle(x_Schwarzschild_pix, y_Schwarzschild_pix, 10., Color::BLUE);
 
         // TODO: draw history of orbits with circular buffer
+        // Draw history of orbits as well.
+        history_Newton.push((x_Newton_pix, y_Newton_pix));
+        history_Schwarzschild.push((x_Schwarzschild_pix, y_Schwarzschild_pix));
+
+        for (x, y) in history_Newton.asc_iter() {
+            d.draw_circle(*x, *y, 1., Color::RED);
+        }
+        for (x, y) in history_Schwarzschild.asc_iter() {
+            d.draw_circle(*x, *y, 1., Color::BLUE);
+        }
 
         // TODO: is this following line needed? better way to do? Will it work to set fps and let raylib take care of it?
         std::thread::sleep(Duration::from_secs_f64(graphic_dt));
