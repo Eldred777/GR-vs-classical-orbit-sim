@@ -47,6 +47,8 @@ fn main() {
     let v_r0 = 0.1;
     let v_phi0 = 0.01 * PI;
 
+    let mut simulation_time = 0.; // keep track of total time simulated
+
     // TODO: we aim to get the newton simulation working first and then add the Schwarzschild simulation in later.
     let mut orbit_state_Newton = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
     let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
@@ -95,7 +97,18 @@ fn main() {
             Color::BLACK,
         );
 
+        // Draw in the total simulation time and increment
+        d.draw_text(
+            format!("t={:.2}", simulation_time).as_str(),
+            10,
+            20,
+            10,
+            Color::BLACK,
+        );
+        simulation_time += simulation_dt;
+
         // Evolution of system
+
         orbit_state_Newton =
             orbit::step_Euler(&orbit_state_Newton, M, simulation_dt, &orbit::ode_Newtonian);
         let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
