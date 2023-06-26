@@ -109,7 +109,6 @@ fn main() {
         // Evolution of system
         orbit_state_Newton =
             orbit::step_Euler(&orbit_state_Newton, M, simulation_dt, &orbit::ode_Newtonian);
-        let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
         orbit_state_Schwarzschild = orbit::step_Euler(
             &orbit_state_Schwarzschild,
             M,
