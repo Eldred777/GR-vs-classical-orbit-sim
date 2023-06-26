@@ -1,18 +1,23 @@
-#![allow(dead_code)] // TODO: REMOVE WHEN WORKING PROTOTYPE
-
 use circular_queue::{self, CircularQueue};
 use num;
 use raylib::prelude::*;
+use std::f64::consts::PI;
 use std::time::Duration;
 
 pub mod orbit;
+
+// TODO: terminate simulation when blow-up happens
 
 fn convert_float_coordinates_to_pixel_coordinates(
     x: f64,
     y: f64,
     screen_width: i32,
     screen_height: i32,
+    graphic_scale: f64,
 ) -> (i32, i32) {
+    let x = x * graphic_scale;
+    let y = y * graphic_scale;
+
     let x = num::clamp(x.floor() as i32 + screen_width / 2, 0, screen_width);
     let y = num::clamp(-y.floor() as i32 + screen_height / 2, 0, screen_height);
 
@@ -33,22 +38,23 @@ fn main() {
     let simulation_dt = 0.1; // simulation time step for ODE solvers
     let time_factor = 100.; // Think of this as a rate; # of updates to be shown in one unit of time.
     let graphic_dt = simulation_dt / time_factor; //
+    let graphic_scale = 10.;
 
     // TODO: initial conditions
-    let r0 = 20.;
-    let phi0 = 1.;
+    let r0 = 10.;
+    let phi0 = 0. * PI;
     let v_r0 = 0.;
-    let v_phi0 = 0.;
+    let v_phi0 = 0.01 * PI;
 
     // TODO: we aim to get the newton simulation working first and then add the Schwarzschild simulation in later.
     let mut orbit_state_Newton = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
     // let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
 
-    const BUFFER_SIZE: usize = 1000;
-    let mut buffer_Newton: CircularQueue<(i32, i32)> =
-        circular_queue::CircularQueue::with_capacity(BUFFER_SIZE);
+    // const BUFFER_SIZE: usize = 1000;
+    // let mut buffer_Newton: CircularQueue<(i32, i32)> =
+    //     circular_queue::CircularQueue::with_capacity(BUFFER_SIZE);
     // let buffer_Schwarzschild: CircularQueue<(i32, i32)> =
-    // circular_queue::CircularQueue::with_capacity(1000);
+    //     circular_queue::CircularQueue::with_capacity(1000);
 
     // TODO: accept user input for initial conditions?
 
@@ -94,8 +100,13 @@ fn main() {
 
         // Draw the orbits
         // let (x, y, _, _) = orbit_state_Newton.to_Cartesian();
-        let (x, y) =
-            convert_float_coordinates_to_pixel_coordinates(x, y, window_size_x, window_size_y);
+        let (x, y) = convert_float_coordinates_to_pixel_coordinates(
+            x,
+            y,
+            window_size_x,
+            window_size_y,
+            graphic_scale,
+        );
         d.draw_circle(x, y, 10., Color::RED);
 
         // TODO: draw history of orbits with circular buffer
