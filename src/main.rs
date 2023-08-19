@@ -52,11 +52,37 @@ fn main() {
     let mut orbit_state_Newton = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
     let mut orbit_state_Schwarzschild = orbit::OrbitState::construct(r0, phi0, v_r0, v_phi0);
 
-    const BUFFER_SIZE: usize = 10000;
+    const BUFFER_SIZE: usize = 1000;
     let mut history_Newton: CircularQueue<(i32, i32)> =
         circular_queue::CircularQueue::with_capacity(BUFFER_SIZE);
     let mut history_Schwarzschild: CircularQueue<(i32, i32)> =
         circular_queue::CircularQueue::with_capacity(1000);
+
+    // Initialise buffers with the initial position of each
+    {
+        let (x_Newton, y_Newton, _, _) = orbit_state_Newton.to_Cartesian();
+        let (x_Schwarzschild, y_Schwarzschild, _, _) = orbit_state_Schwarzschild.to_Cartesian();
+
+        // Draw the orbit current positions
+        let (x_Newton_pix, y_Newton_pix) = convert_float_coordinates_to_pixel_coordinates(
+            x_Newton,
+            y_Newton,
+            window_size_x,
+            window_size_y,
+            graphic_scale,
+        );
+        let (x_Schwarzschild_pix, y_Schwarzschild_pix) =
+            convert_float_coordinates_to_pixel_coordinates(
+                x_Schwarzschild,
+                y_Schwarzschild,
+                window_size_x,
+                window_size_y,
+                graphic_scale,
+            );
+
+        history_Newton.push((x_Newton_pix, y_Newton_pix));
+        history_Schwarzschild.push((x_Schwarzschild_pix, y_Schwarzschild_pix));
+    }
 
     // TODO: accept user input for initial conditions?
 
@@ -142,9 +168,20 @@ fn main() {
         d.draw_circle(x_Newton_pix, y_Newton_pix, 10., Color::RED);
         d.draw_circle(x_Schwarzschild_pix, y_Schwarzschild_pix, 10., Color::BLUE);
 
-        // TODO: draw history of orbits with circular buffer
         // Draw history of orbits as well.
-        history_Newton.push((x_Newton_pix, y_Newton_pix));
+        // TODO: better way of testing if these are different enough? Possibly pass a function 
+        let current_Newton = (x_Newton_pix, y_Newton_pix);
+        let last_Newton = *history_Newton.iter().last().unwrap();
+        if current_Newton != last_Newton {
+            history_Newton.push((x_Newton_pix, y_Newton_pix));
+        }
+
+        let current_Schwarzschild = (x_Schwarzschild_pix, y_Schwarzschild_pix);
+        let last_Schwarzschild = *history_Schwarzschild.iter().last().unwrap();
+        if current_Schwarzschild != last_Schwarzschild {
+            history_Schwarzschild.push((x_Schwarzschild_pix, y_Schwarzschild_pix));
+        }
+
         history_Schwarzschild.push((x_Schwarzschild_pix, y_Schwarzschild_pix));
 
         for (x, y) in history_Newton.asc_iter() {
